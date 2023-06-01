@@ -24,7 +24,7 @@ passport.use(new JWTStrategy({
 },
 function (jwtPayload, cb) {
     //find the user in db if needed. This functionality may be omitted if you store everything you'll need in JWT payload.
-    return User.findById(jwtPayload.user.doc._id)
+    return User.findById(jwtPayload.user._id)
         .then(user => {
             return cb(null, user);
         })
@@ -42,15 +42,32 @@ const discordStrat = new DiscordStrategy({
     callbackURL: '/auth/login/callback',
     scope: scopes
   },
-    function (accessToken, refreshToken, profile, cb) {
-        console.log(profile)
-        return User.findOrCreate({ discordId: profile.id })
-            .then(user=> {
-                if (!user) {
-                    return cb(null, false, {message: 'Incorrect email or password.'});
-                }
-        return cb(null, user, {message: 'Logged In Successfully'});
-            }).catch(err => cb(err))
+    function (accessToken, refreshToken, profile, done) {
+        User.findOne({
+            discordId: profile.id 
+        }).then((err, user) => {
+            if (err) {
+                return done(err);
+            }
+            //No user was found... so create a new user with values from discord
+            if (!user) {
+                user = new User({
+                    discordId: profile.id,
+                    username: profile.username,
+                    discriminator: profile.discriminator,
+                    email: profile.email,
+                    avatar: profile.avatar,
+                });
+                user.save().then(user => {
+                    return done(null, user);
+                });
+            } else {
+                //found user. Return
+                return done(err, user);
+            }
+
+    });
+        
     });
 
 passport.use(discordStrat);
