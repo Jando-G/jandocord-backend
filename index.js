@@ -7,6 +7,7 @@ const refresh = require('passport-oauth2-refresh');
 const passport = require('passport');
 const User = require('./models/User.js');
 const cookieSession = require('cookie-session');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
@@ -22,6 +23,8 @@ app.use(
 );
 
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 app.use('/auth', authRouter);
@@ -34,7 +37,7 @@ mongoose.set("debug", (collectionName, method, query, doc) => {
 const uri = "mongodb+srv://Jando:UcgTNZY9jY4XRGto@authentication.dypavvc.mongodb.net/?retryWrites=true&w=majority";
 main().catch(err => console.log(err));
 async function main() {
-  await mongoose.connect(uri);
+  await mongoose.connect(uri, {dbName: 'data'});
 }
 
 const port = "5000"
