@@ -9,7 +9,7 @@ const MessageSchema = new Schema({
 
 const Thread = new Schema({
     whiteList: [String],
-    Messages: [MessageSchema],
+    messages: [MessageSchema],
   });
   
   module.exports = mongoose.model("Thread", Thread, 'threads');

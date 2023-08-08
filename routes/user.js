@@ -7,6 +7,14 @@ const Thread = require('../models/Thread');
 const crypto = require('crypto');
 const mongoose = require("mongoose");
 
+function generateChatId(userId1, userId2) {
+  const sortedUserIds = [userId1, userId2].sort();
+  const combinedId = sortedUserIds.join('');
+  const hash = crypto.createHash('sha256').update(combinedId).digest('hex');
+  const uniqueId = hash.slice(0, 24);
+  return uniqueId;
+}
+
 router.get("/profile", passport.authenticate('jwt', {session: false}), (req, res) => {
   if (req.user) {
     res.status(200).send({
@@ -18,19 +26,64 @@ router.get("/profile", passport.authenticate('jwt', {session: false}), (req, res
   else {
     res.status(420).send({
       success: false,
-      message: "failed",
-      user: req.user,
+      message: "User not logged in",
     })
   }
 });
 
-function generateChatId(userId1, userId2) {
-  const sortedUserIds = [userId1, userId2].sort();
-  const combinedId = sortedUserIds.join('');
-  const hash = crypto.createHash('sha256').update(combinedId).digest('hex');
-  const uniqueId = hash.slice(0, 24);
-  return uniqueId;
-}
+router.get("/messages", passport.authenticate('jwt', {session: false}), async (req, res) => {
+  if (req.user) {
+    const threadId = new mongoose.Types.ObjectId(generateChatId(req.user._id, req.query.friendId));
+
+    const thread = await Thread.findById(threadId);
+    res.status(200).send({
+      success: true,
+      message: "successfull",
+      messages: thread.messages,
+    });
+  }
+  else {
+    res.status(420).send({
+      success: false,
+      message: "User not logged in",
+    })
+  }
+});
+
+router.post("/send", passport.authenticate('jwt', {session: false}), async (req, res) => {
+
+  if(!req.body.message) {
+    return res.status(422).send({
+      success: false,
+      message: "Message must have content",
+    })
+  }
+  if (req.user) {
+    const threadId = new mongoose.Types.ObjectId(generateChatId(req.user._id, req.body.friendId))
+    const thread = await Thread.findById(threadId);
+
+    const newMessage = {
+      content: req.body.message,
+      date: new Date(),
+      sender: req.user._id,
+    }
+
+    thread.messages.push(newMessage);
+
+    await thread.save();
+
+    res.status(200).send({
+      success: true,
+      message: newMessage,
+    });
+  }
+  else {
+    res.status(420).send({
+      success: false,
+      message: "User not logged in",
+    })
+  }
+});
 
 router.post("/addfriend", passport.authenticate('jwt', {session: false}), async (req, res) => {
    // check if user already added friend
@@ -77,6 +130,7 @@ router.post("/addfriend", passport.authenticate('jwt', {session: false}), async 
     username: friendObject.username,
     avatar: friendObject.avatar,
     discriminator: friendObject.discriminator,
+    discordId: friendObject.discordId,
   }
 
   req.user.friends.push(newFriend);
