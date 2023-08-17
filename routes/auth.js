@@ -5,10 +5,12 @@ const jwt = require('jsonwebtoken');
 
 
 router.get('/login/callback', function (req, res, next) {
-  passport.authenticate('discord', {session: false}, (err, user, info) => {
+  passport.authenticate('discord', {session: false}, (user, err, info) => {
           if (err || !user) {
               return res.status(401).json({
                   success: false,
+                  error: err,
+                  usr: user,
                   message: 'Something is not right',
               });
           }

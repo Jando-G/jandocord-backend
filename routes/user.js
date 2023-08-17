@@ -34,12 +34,12 @@ router.get("/profile", passport.authenticate('jwt', {session: false}), (req, res
 router.get("/messages", passport.authenticate('jwt', {session: false}), async (req, res) => {
   if (req.user) {
     const threadId = new mongoose.Types.ObjectId(generateChatId(req.user._id, req.query.friendId));
-
     const thread = await Thread.findById(threadId);
     res.status(200).send({
       success: true,
       message: "successfull",
       messages: thread.messages,
+      threadId: threadId, //giving away decrypted id fine since I'm implementing the whitelist later
     });
   }
   else {
