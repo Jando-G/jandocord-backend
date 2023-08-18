@@ -35,12 +35,20 @@ router.get("/messages", passport.authenticate('jwt', {session: false}), async (r
   if (req.user) {
     const threadId = new mongoose.Types.ObjectId(generateChatId(req.user._id, req.query.friendId));
     const thread = await Thread.findById(threadId);
-    res.status(200).send({
-      success: true,
-      message: "successfull",
-      messages: thread.messages,
-      threadId: threadId, //giving away decrypted id fine since I'm implementing the whitelist later
-    });
+    if(thread) {
+      res.status(200).send({
+        success: true,
+        message: "successfull",
+        messages: thread.messages,
+        threadId: threadId, //giving away decrypted id fine since I'm implementing the whitelist later
+      });
+    }
+    else {
+      res.status(666).send({
+        success: false,
+        message: "Thread somehow doesn't exist",
+      })
+    }
   }
   else {
     res.status(420).send({
@@ -48,6 +56,19 @@ router.get("/messages", passport.authenticate('jwt', {session: false}), async (r
       message: "User not logged in",
     })
   }
+});
+
+router.get("/search", async (req, res) => {
+    try {
+      const searchQuery = req.query.q;
+      const users = await User.find({
+        username: { $regex: new RegExp(searchQuery, 'i') }, 
+      }).select('username discriminator discordId avatar'); 
+      res.json(users);
+    } catch (error) {
+      console.error('Error searching for users:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 router.post("/send", passport.authenticate('jwt', {session: false}), async (req, res) => {
