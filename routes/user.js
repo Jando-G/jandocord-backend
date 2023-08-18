@@ -117,7 +117,7 @@ router.post("/addfriend", passport.authenticate('jwt', {session: false}), async 
       message: "Friend is already added",
     })
   }
-
+  
   // Get friend data
   const friendObject = await User.findOne({username: req.body.username, discriminator: req.body.discriminator});
   
@@ -172,6 +172,29 @@ router.post("/addfriend", passport.authenticate('jwt', {session: false}), async 
       error: error.message,
     });
   });
+})
+
+router.put("/removefriend/:friendId", passport.authenticate('jwt', {session: false}), async (req, res) => {
+
+  // check if user already added friend
+  const isFriendAdded = req.user.friends.some(
+   friend => friend.id === req.params.friendId
+ );
+ if(isFriendAdded) {
+  try {
+    req.user.friends.pull({id: req.params.friendId});
+    req.user.save(); //doesnt return updated user like it should. big sadge
+    res.json("removed friend successfully");
+  } catch (error){
+    res.status(500).json({ error: 'Error while removing friend' });
+  }
+ }
+ else {
+  return res.status(409).send({
+    success: false,
+    message: "Friend is already removed",
+  })
+ }
 })
 
 
