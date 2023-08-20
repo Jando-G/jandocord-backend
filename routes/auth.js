@@ -18,9 +18,9 @@ router.get('/login/callback', function (req, res, next) {
              if (err) {
                  res.send(err);
              }
-  // generate a signed son web token with the contents of user object and return it in the response
-  const token = jwt.sign({user}, 'your_jwt_secret');
-  res.cookie('jwt', token, { httpOnly: true });
+             // generate a signed son web token with the contents of user object and return it in the response
+             const token = jwt.sign({user}, 'your_jwt_secret', {expiresIn: '1d'});
+             res.cookie('jwt', token, { httpOnly: true });
              return res.redirect(`http://localhost:3000/`);
           });
       })(req, res);
@@ -28,9 +28,13 @@ router.get('/login/callback', function (req, res, next) {
 
 router.get('/login', passport.authenticate('discord', {session: false}));
 
-router.get('/logout', (req,res) => {
-     req.logout();
-     res.redirect('http://localhost:3000/');
+router.post('/logout', (req,res) => {
+    res.clearCookie('jwt');
+    req.logout();
+    return res.status(200).json({
+        success: true,
+        message: 'Logged out',
+    });
 })
 
 
