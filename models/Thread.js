@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema({
-    content: { type: String, required: true, minLength: 1, maxLength: 255},
+    content: { type: String, required: true, minLength: 1, maxLength: 2000},
     date: {type: Date, required: true},
     sender: {type: String, required: true}
   });
