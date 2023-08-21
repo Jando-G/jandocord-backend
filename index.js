@@ -75,6 +75,10 @@ async function main() {
   await mongoose.connect(uri, {dbName: 'data'});
 }
 
+app.get('/', (req, res) => {
+  res.send("Server is up and running on port " + process.env.PORT + " ☕️");
+})
+
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
 })
