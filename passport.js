@@ -39,7 +39,7 @@ const scopes = ['identify', 'email', 'guilds', 'guilds.join'];
 const discordStrat = new DiscordStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.SECRET_KEY,
-    callbackURL: '/auth/login/callback',
+    callbackURL: 'https://jandocord-d39f82b85605.herokuapp.com/auth/login/callback',
     scope: scopes
   },
     function (accessToken, refreshToken, profile, done) {
