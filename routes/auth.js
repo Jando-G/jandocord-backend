@@ -19,8 +19,9 @@ router.get('/login/callback', function (req, res, next) {
                  res.send(err);
              }
              // generate a signed son web token with the contents of user object and return it in the response
-             const token = jwt.sign({user}, 'your_jwt_secret', {expiresIn: '1d'});
+             const token = jwt.sign({user}, 'i_watched_sailormoon', {expiresIn: '1d'});
              res.cookie('jwt', token, { httpOnly: true });
+             console.log("the token assigned: " + token)
              return res.redirect(`http://localhost:3000/`);
           });
       })(req, res);

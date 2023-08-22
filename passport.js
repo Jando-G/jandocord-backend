@@ -15,12 +15,13 @@ passport.serializeUser((user, done) => {
 const cookieExtractor = function(req) {
     let token = null;
     if (req && req.cookies) token = req.cookies['jwt'];
+    console.log("the token recieved: " + token)
     return token;
   };
 
 passport.use(new JWTStrategy({
     jwtFromRequest: cookieExtractor,
-    secretOrKey : 'your_jwt_secret'
+    secretOrKey : 'i_watched_sailormoon'
 },
 function (jwtPayload, cb) {
     //find the user in db if needed. This functionality may be omitted if you store everything you'll need in JWT payload.
