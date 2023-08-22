@@ -27,7 +27,7 @@ const io = new Server(httpServer, {
 });
 
 instrument(io, {auth: false});
-httpServer.listen(3001);
+httpServer.listen(process.env.PORT);
 
 io.on('connection', socket => {
   console.log(`User ${socket.id} connected`)
