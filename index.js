@@ -57,6 +57,12 @@ app.use(cors( {
   credentials: true,
 }));
 
+// Set the Access-Control-Allow-Credentials header for all routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
