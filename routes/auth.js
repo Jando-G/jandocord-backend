@@ -21,7 +21,7 @@ router.get('/login/callback', function (req, res, next) {
              const token = jwt.sign({user}, 'i_watched_sailormoon', {expiresIn: '1d'});
              res.cookie('jwt', token, { httpOnly: true, sameSite: 'none', secure: true, })
              console.log("the token assigned: " + token)
-             return res.redirect(`http://localhost:3000/`);
+             return res.redirect(`jandocord.netlify.app/`);
           });
       })(req, res);
   });
